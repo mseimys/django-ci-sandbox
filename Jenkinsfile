@@ -25,8 +25,9 @@ pipeline {
             steps {
                 sh("""
                 . ./env/bin/activate
-                pylint mysite
+                pylint mysite | tee pylint.log
                 """)
+                archiveArtifacts artifacts: 'pylint.log'
             }
         }
     }
