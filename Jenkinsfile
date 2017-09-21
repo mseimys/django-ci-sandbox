@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build frontend') {
             steps {
-                build 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')]
+                build job: 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')]
                 step([
                         $class: 'CopyArtifact',
                         filter: '*',
