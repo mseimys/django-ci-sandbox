@@ -1,9 +1,13 @@
 pipeline {
-    agent any 
+    agent any
 
     stages {
-        stage('Setup environment') { 
-            steps { 
+        stage('Build frontend') {
+            build 'minimal-react-redux'
+            stash includes: 'dist/**', name: 'frontend'
+        }
+        stage('Setup environment') {
+            steps {
                 sh("""
                 virtualenv env -p /usr/bin/python3
                 . ./env/bin/activate
@@ -11,8 +15,8 @@ pipeline {
                 """)
             }
         }
-        stage('Run unit tests') { 
-            steps { 
+        stage('Run unit tests') {
+            steps {
                 dir('mysite') {
                     sh("""
                     . ../env/bin/activate
@@ -21,13 +25,19 @@ pipeline {
                 }
             }
         }
-        stage('Lint') { 
+        stage('Lint') {
             steps {
                 sh("""
                 . ./env/bin/activate
                 pylint mysite | tee pylint.log
                 """)
                 archiveArtifacts artifacts: 'pylint.log'
+            }
+        }
+        stage('Build releasable package') {
+            steps {
+                unstash 'frontend'
+                archiveArtifacts artifacts: '**'
             }
         }
     }
