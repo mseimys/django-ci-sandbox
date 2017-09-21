@@ -4,8 +4,16 @@ pipeline {
     stages {
         stage('Build frontend') {
             steps {
-                build 'minimal-react-redux'
-                stash includes: 'dist/**', name: 'frontend'
+                build 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')]
+                step([
+                        $class: 'CopyArtifact',
+                        filter: '*',
+                        projectName: 'minimal-react-redux',
+                        selector: [
+                            $class: 'StatusBuildSelector',
+                            stable: false
+                        ]
+                ])
             }
         }
         stage('Setup environment') {
@@ -38,7 +46,6 @@ pipeline {
         }
         stage('Build releasable package') {
             steps {
-                unstash 'frontend'
                 archiveArtifacts artifacts: '**'
             }
         }
