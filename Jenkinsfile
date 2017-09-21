@@ -4,21 +4,21 @@ pipeline {
     stages {
         stage('Setup environment') { 
             steps { 
-                bash 'virtualenv env -p /usr/bin/python3'
-                bash '. ./env/bin/activate'
-                bash 'pip install -r requirements.txt'
+                sh 'virtualenv env -p /usr/bin/python3'
+                sh '. ./env/bin/activate'
+                sh 'pip install -r requirements.txt'
             }
         }
         stage('Run unit tests') { 
             steps { 
                 dir('mysite') {
-                    bash 'python manage.py test'
+                    sh 'python manage.py test'
                 }
             }
         }
         stage('Lint') { 
             steps { 
-                bash 'pylint mysite'
+                sh 'pylint mysite'
             }
         }
     }
