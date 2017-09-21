@@ -3,8 +3,10 @@ pipeline {
 
     stages {
         stage('Build frontend') {
-            build 'minimal-react-redux'
-            stash includes: 'dist/**', name: 'frontend'
+            steps {
+                build 'minimal-react-redux'
+                stash includes: 'dist/**', name: 'frontend'
+            }
         }
         stage('Setup environment') {
             steps {
