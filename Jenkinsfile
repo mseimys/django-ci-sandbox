@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Build frontend') {
+        parallel stage('Build frontend') {
             steps {
                 build job: 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')], wait: true
                 step([
@@ -40,12 +40,11 @@ pipeline {
                 . ./env/bin/activate
                 pylint mysite | tee pylint.log
                 """)
-                archiveArtifacts artifacts: 'pylint.log'
             }
         }
-        stage('Build releasable package') {
-            steps {
-                archiveArtifacts artifacts: '**'
+        post {
+            always {
+                archiveArtifacts artifacts: '**/*'
             }
         }
     }
