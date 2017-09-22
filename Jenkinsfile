@@ -1,49 +1,44 @@
 pipeline {
     agent any
+    def branches = [:]
 
     stages {
-        parallel stage('Build frontend') {
-            steps {
-                build job: 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')], wait: true
-                step([
-                        $class: 'CopyArtifact',
-                        projectName: 'minimal-react-redux',
-                        selector: [
-                            $class: 'StatusBuildSelector',
-                            stable: false
-                        ]
-                ])
-            }
+        branches["FRONTEND"] = {
+            build job: 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')], wait: true
+            step([
+                    $class: 'CopyArtifact',
+                    projectName: 'minimal-react-redux',
+                    selector: [
+                        $class: 'StatusBuildSelector',
+                        stable: false
+                    ]
+            ])
         }
-        stage('Setup environment') {
-            steps {
+
+        branches["BACKEND"] = {
+            sh("""
+            virtualenv env -p /usr/bin/python3
+            . ./env/bin/activate
+            pip install -r requirements.txt
+            """)
+            dir('mysite') {
                 sh("""
-                virtualenv env -p /usr/bin/python3
-                . ./env/bin/activate
-                pip install -r requirements.txt
+                . ../env/bin/activate
+                python manage.py test
                 """)
             }
+            sh("""
+            . ./env/bin/activate
+            pylint mysite | tee pylint.log
+            """)
         }
-        stage('Run unit tests') {
+
+        stage('Build') {
+            parallel branches
+        }
+
+        stage('Make releasable package') {
             steps {
-                dir('mysite') {
-                    sh("""
-                    . ../env/bin/activate
-                    python manage.py test
-                    """)
-                }
-            }
-        }
-        stage('Lint') {
-            steps {
-                sh("""
-                . ./env/bin/activate
-                pylint mysite | tee pylint.log
-                """)
-            }
-        }
-        post {
-            always {
                 archiveArtifacts artifacts: '**/*'
             }
         }
