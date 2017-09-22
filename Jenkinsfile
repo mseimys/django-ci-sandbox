@@ -7,7 +7,6 @@ pipeline {
                 build job: 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')], wait: true
                 step([
                         $class: 'CopyArtifact',
-                        filter: '*',
                         projectName: 'minimal-react-redux',
                         selector: [
                             $class: 'StatusBuildSelector',
