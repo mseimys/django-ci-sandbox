@@ -1,4 +1,4 @@
-pipeline {
+node {
     def branches = [:]
 
     branches["FRONTEND"] = {
