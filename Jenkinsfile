@@ -38,8 +38,6 @@ node {
     parallel branches
 
     stage('Make releasable package') {
-        steps {
-            archiveArtifacts artifacts: '**/*'
-        }
+        archiveArtifacts artifacts: '**/*'
     }
 }
