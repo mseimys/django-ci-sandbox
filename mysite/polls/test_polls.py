@@ -5,4 +5,4 @@ class PollTestCase(TestCase):
         self.assertTrue(True)
 
     def test_false(self):
-        self.assertFalse(False)
+        self.assertFalse(True)
