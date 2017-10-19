@@ -4,14 +4,6 @@ node {
     branches["FRONTEND"] = {
         stage('Build frontend') {
             build job: 'minimal-react-redux', parameters: [string(name: 'BRANCH', value: 'master')], wait: true
-            step([
-                    $class: 'CopyArtifact',
-                    projectName: 'minimal-react-redux',
-                    selector: [
-                        $class: 'StatusBuildSelector',
-                        stable: false
-                    ]
-            ])
         }
     }
 
@@ -38,6 +30,14 @@ node {
     parallel branches
 
     stage('Make releasable package') {
+        step([
+            $class: 'CopyArtifact',
+            projectName: 'minimal-react-redux',
+            selector: [
+                $class: 'StatusBuildSelector',
+                stable: true
+            ]
+        ])
         archiveArtifacts artifacts: '**/*'
     }
 }
